@@ -3,7 +3,7 @@ const { connectMongoDb } = require("./connections/url")
 const path = require("path")
 const URL = require("./models/url")
 const cookieParser = require("cookie-parser")
-const { restrictToLoggedInUserOnly, checkAuth } = require("./middlewares/auth")
+const { checkForAuthentication, restrictTo } = require("./middlewares/auth")
 
 const DB_URL = 'mongodb://127.0.0.1:27017/url-shortner'
 connectMongoDb(DB_URL)
@@ -18,18 +18,14 @@ app.use(express.json())
 app.use(express.urlencoded({extended: false}))
 app.use(cookieParser())
 
-app.get('/test', async (req, res) => {
-    const allUrls = await URL.find({})
-    return res.render('home', {
-        urls: allUrls,
-    })
-})
+app.use(checkForAuthentication)
+
 
 const staticRoute = require("./routes/staticRouter")
-app.use("/", checkAuth, staticRoute)
+app.use("/", staticRoute)
 
 const urlRoute = require("./routes/url")
-app.use("/url", restrictToLoggedInUserOnly, urlRoute)
+app.use("/url", restrictTo(["NORMAL", "ADMIN"]), urlRoute)
 
 const userRoute = require('./routes/user')
 app.use("/user", userRoute)
