@@ -4,8 +4,11 @@ const path = require("path")
 const URL = require("./models/url")
 const cookieParser = require("cookie-parser")
 const { checkForAuthentication, restrictTo } = require("./middlewares/auth")
+require("dotenv").config()
 
-const DB_URL = 'mongodb://127.0.0.1:27017/url-shortner'
+// const DB_URL = 'mongodb://127.0.0.1:27017/url-shortner'
+const DB_URL = process.env.MONGO_URI;
+
 connectMongoDb(DB_URL)
 
 const app = express()
